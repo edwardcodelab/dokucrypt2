@@ -38,6 +38,14 @@ class action_plugin_dokucrypt2 extends DokuWiki_Action_Plugin
             "defer" => "defer",
             "_data" => "",
         );
+        
+        
+        $event->data["script"][] = array(
+            "type" => "text/javascript",
+            "src" => DOKU_BASE."lib/plugins/dokucrypt2/disable_drafts.js",
+            "defer" => "defer",
+            "_data" => "",
+        );
     }
   
     public function _addconfig(&$event, $param)
