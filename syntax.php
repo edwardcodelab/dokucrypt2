@@ -15,6 +15,10 @@ if (!defined('DOKU_PLUGIN')) {
 }
 require_once(DOKU_PLUGIN.'syntax.php');
 
+/**
+ * All DokuWiki plugins to extend the parser/rendering mechanism
+ * need to inherit from this class
+ */
 class syntax_plugin_dokucrypt2 extends DokuWiki_Syntax_Plugin
 {
     public $curNum = 0;
@@ -61,8 +65,34 @@ class syntax_plugin_dokucrypt2 extends DokuWiki_Syntax_Plugin
         $this->Lexer->addExitPattern('</ENCRYPTED>', 'plugin_dokucrypt2');
     }
 
-    public function handle($match, $state, Doku_Handler $handler)
+    /**
+     * Handle the match and delete attic revisions if </ENCRYPTED> or <SECRET> is present
+     */
+    public function handle($match, $state, $pos, Doku_Handler $handler)
     {
+        global $ID; // Current page ID (e.g., "namespace:page")
+
+        // Check for </ENCRYPTED> or <SECRET> in the match
+        if (strpos($match, '</ENCRYPTED>') !== false || strpos($match, '<SECRET>') !== false) {
+            // Convert page ID to attic filename format (replace : with .)
+            $attic_base = DOKU_INC . 'data/attic/' . str_replace(':', '.', $ID);
+            // Find all revision files for this page
+            $revision_files = glob("$attic_base.*.txt.gz");
+            if ($revision_files) {
+                // Delete each revision file
+                foreach ($revision_files as $file) {
+                    if (is_file($file) && unlink($file)) {
+                        // Optional: Log or debug success
+                        // error_log("Deleted revision: $file");
+                    } else {
+                        // Optional: Log failure
+                        // error_log("Failed to delete revision: $file");
+                    }
+                }
+            }
+        }
+
+        // Existing handle logic
         switch ($state) {
             case DOKU_LEXER_ENTER:
                 $attr = array("lock" => "default", "collapsed" => "1");
@@ -93,6 +123,9 @@ class syntax_plugin_dokucrypt2 extends DokuWiki_Syntax_Plugin
         return array();
     }
 
+    /**
+     * Create output
+     */
     public function render($mode, Doku_Renderer $renderer, $data)
     {
         if ($mode == 'xhtml') {
