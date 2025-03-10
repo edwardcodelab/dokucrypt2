@@ -32,6 +32,14 @@ This plugin includes configuration settings.
 * `copytoclipboard` - If set to true, the plugin tries to copy the decrypted value to the clipboard.
 * `hidepasswordoncopytoclipboard` - If set to true, the decrypted value will not be shown after being copied to the clipboard (see option 'copytoclipboard').
 
+
+## This fork
+Updated:
+* Attic Revision Deletion: The handle() method now deletes attic revision files (older page versions) when <ENCRYPTED> or <SECRET> tags are detected, reducing the risk of unencrypted data lingering on the server.
+* Draft Disabling: The disable_drafts.js script disables autosave and manual draft saving when <SECRET> tags are present, preventing unencrypted content from being cached or saved inadvertently.
+* Cache Prevention: Adds Cache-Control and Pragma headers (no-store, no-cache, must-revalidate, private) and modifies browser history state to prevent caching of pages with encrypted content.
+
+
 ## ChangeLog
 
 * 2024-05-01: PR from **t-oster** to prevent bugs when encrypted text contains html.
